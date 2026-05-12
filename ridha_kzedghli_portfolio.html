@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>المؤلفات الأدبية — رضا الكزدغلي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700&display=swap"/>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#F5EDD8}
+::-webkit-scrollbar{width:7px}
+::-webkit-scrollbar-track{background:#F5EDD8}
+::-webkit-scrollbar-thumb{background:#6B1E33;border-radius:4px}
+.card{transition:transform .28s cubic-bezier(.2,.6,.3,1),box-shadow .28s,opacity .3s,filter .3s}
+.card:not(.dimmed):hover{transform:translateY(-7px);box-shadow:0 24px 52px rgba(107,30,51,.24)!important}
+.matched{outline:3px solid #C9A84C!important;box-shadow:0 0 30px rgba(201,168,76,.55)!important}
+.dimmed{opacity:.2!important;filter:grayscale(1);pointer-events:none}
+.kw{cursor:pointer;transition:all .2s;display:inline-block;padding:3px 7px;border-radius:5px;line-height:2;font-family:'Amiri',serif}
+.kw:hover{color:#C9A84C!important;transform:scale(1.1)}
+.kw.act{color:#C9A84C!important;text-shadow:0 0 20px rgba(201,168,76,.45)}
+.pill{border-radius:999px;font-size:13px;padding:6px 18px;border:2px solid #6B1E33;cursor:pointer;transition:all .18s;font-family:Cairo,sans-serif;background:transparent;color:#6B1E33}
+.pill.on,.pill:hover{background:#6B1E33;color:#F5EDD8}
+.btn{font-family:Cairo,sans-serif;font-size:13px;padding:6px 16px;border-radius:8px;border:none;cursor:pointer;transition:all .18s}
+.bg{background:#C9A84C;color:#4A1522}.bg:hover{background:#E5C46B}
+.bw{background:#6B1E33;color:#F5EDD8}.bw:hover{background:#8B2E43}
+.br{background:#7B0F22;color:#fff}.br:hover{background:#9B1F32}
+.btr{background:transparent;border:1.5px solid #C9A84C;color:#A0782E;border-radius:999px}.btr:hover{background:#C9A84C;color:#4A1522}
+input,textarea,select{font-family:Cairo,sans-serif;background:#FBF6E9;border:1.5px solid rgba(201,168,76,.5);border-radius:8px;padding:9px 13px;color:#2A1208;outline:none;width:100%;transition:border .18s}
+input:focus,textarea:focus,select:focus{border-color:#6B1E33;background:#fff}
+textarea{resize:vertical}
+label{font-family:Cairo,sans-serif;font-size:13px;color:#6B1E33;display:block;margin-bottom:4px;font-weight:700}
+.ov{position:fixed;inset:0;background:rgba(20,6,8,.82);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+.md{background:#F5EDD8;border-radius:18px;border:2px solid rgba(201,168,76,.4);max-width:700px;width:100%;padding:28px;position:relative;margin:auto;box-shadow:0 32px 80px rgba(74,21,34,.4)}
+.add-c{border:2.5px dashed #C9A84C;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;cursor:pointer;min-height:210px;transition:all .22s;color:#C9A84C;background:rgba(201,168,76,.04)}
+.add-c:hover{background:rgba(201,168,76,.12);transform:translateY(-4px)}
+.sep{border:none;border-top:1.5px solid #E8D9B5;margin:18px 0}
+.clamp3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tag{background:#6B1E33;color:#F5EDD8;font-size:11px;padding:3px 11px;border-radius:999px;font-family:Cairo,sans-serif;font-weight:600;white-space:nowrap}
+.stat-n{font-size:28px;font-weight:700;font-family:Cairo,sans-serif}
+@keyframes fadein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.fadein{animation:fadein .32s ease forwards}
+@keyframes toast-in{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.toast-anim{animation:toast-in .3s ease}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useRef,useEffect,useCallback}=React;
+
+const T={p:"#F5EDD8",pd:"#E8D9B5",pdd:"#D9C49A",w:"#6B1E33",wl:"#8B2E43",wd:"#4A1522",g:"#C9A84C",gl:"#E5C46B",gd:"#A0782E",tx:"#2A1208",txl:"#5A3020",txll:"#8B6050"};
+const GENRES=["الكل","رواية","شعر","خواطر","قصة قصيرة","بحث توثيقي","دراسة","أخرى"];
+const GI={"رواية":"📚","شعر":"🌙","خواطر":"💭","قصة قصيرة":"📖","بحث توثيقي":"🔍","دراسة":"🎓","أخرى":"✦"};
+
+const A0={bio:"رضا الكزدغلي\n\nكاتب وباحث مختص في الإعلام والاتصال\nيسعى من خلال كتاباته لتكريس علاقة ذات مغزى بين المكان والزمان والأحداث وذلك في سردية تستنطق الماضي والحاضر وتحاول قراءة المستقبل، عبر مزيج من الكلمة والصورة ورمزية الشخصيات وما تتبعها من الأشياء.",email:"ridha.kazdaghli@gmail.com",phone:"0021628444434",photo:""};
+
+const W0=[
+{id:"w_1777009031948",title:"خريف الشعلة",genre:"رواية",writeDate:"",publishDate:"2025",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"رواية «خريف الشعلة» هي العمل الروائي الأول للكاتب رضا الكزدغلي. تحمل الرقم 1943 كعلامة زمنية فارقة، وتتخذ من الحرب العالمية الثانية وحملة «الشعلة» التي شهدتها تونس خلفية درامية لأحداثها.\n\nتتميز بأنها حجر الأساس في المشروع الروائي للكاتب، حيث تضع اللبنات الأولى لموضوعاته الكبرى: الآخر والغريب، الهوية والانتماء، الذاكرة والتاريخ، الإنسان العادي في مواجهة الأحداث الكبرى."},
+{id:"w_1777009147735",title:"رقية",genre:"رواية",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"رواية طفولية لحقبة منسية؛ كان صيف العام 1967 منها محطة مفصلية في نمو الوعي لدى أهالي الأحياء الشعبية التي كوّنت حزاماً سكانياً جديداً للعاصمة من الناحية الغربية.\n\nأشعّت عليهم فتاة من أصول أندلسية اختارت أن تكون واحدة منهم، فكانت سلسلة من الأحداث، ثم غادرت الفتاة فجأة دون سابق إعلام."},
+{id:"w_1777009297981",title:"زنبقة البحر المارقة",genre:"رواية",writeDate:"",publishDate:"2025",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"رواية في زمن الحلم والخوف بين ألفية مضت وأخرى على الأبواب. كانت الغربة فيه غربتان: واحدة في الداخل عنوانها خذلان الذات، والثانية غربة في أماكن هي مرة متحف للحياة والتاريخ.\n\nتتداخل مشاهد الماضي مع نبضات الحاضر حيث يصبح كل مشهد من الطبيعة مرآة تعكس تناقضات الزمن."},
+{id:"w_1777009799941",title:"عائلة الكزدغلي منذ العام 1865",genre:"بحث توثيقي",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"البحث في أصول عائلة الكزدغلي أنتج قصة مغترب تركي قدم إلى تونس وأسّس بها نسلاً. مغترب صاهر أهل تونس واندمج فيهم وانقطعت أواصره مع مسقط رأس أجداده.\n\nإذا كان الماضي موطن الآباء والحاضر موطن الأقرباء، فحتى لا يكون المستقبل موطن الغرباء، فإن على الجميع أن يجعل من نفسه البيئة التي تتمازج فيها كل الأزمنة."},
+{id:"w_1777009965690",title:"خواطر في زمن المخاطر",genre:"خواطر",writeDate:"",publishDate:"2025",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"هذا الكتاب ليس مجرد خواطر عابرة، بل هو نتاج تفاعل حي مع مواقف الحياة اليومية ومع الطبيعة التي أحاطت الكاتب آنذاك. تتأثر الأفكار بحالة الطقس كأنها جزء من الحوار الداخلي مع الذات.\n\nيضم قصصاً حقيقية عن أشخاص قابلهم الكاتب، ساعياً لاستخلاص استنتاجات مجردة وصادقة."},
+{id:"w_1777010193424",title:"خواطر رمضانية 2025 — بالاشتراك مع إبراهيم الكزدغلي",genre:"خواطر",writeDate:"",publishDate:"2025",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"في هذا الشهر الكريم نكتب لا لأننا نملك الحكمة، بل لأننا نبحث عنها. هذه الخواطر محاولات صادقة لفهم ما لا يُفهم، وتأمل في ما قد نمر عليه دون أن نراه.\n\nكتبنا كما نشعر بكل مكونات ذاتنا: المؤمن الباحث، والإنسان الحائر، والأب، والصديق."},
+{id:"w_1777010572964",title:"براني...1867",genre:"رواية",writeDate:"",publishDate:"2025",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"رواية تاريخية اجتماعية تغوص في تفاصيل دقيقة لحقبة محددة (تونس 1867) مع تركيز على الحياة اليومية للناس العاديين: فلاحون، حرفيون، تجار، مهاجرون، نساء.\n\nتطرح سؤال الغريب في المجتمع وكيف يبني انتماءه وجذوره في أرض جديدة."},
+{id:"w_1777011284610",title:"الطارق...فليتلطف",genre:"رواية",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"رواية تاريخية سياسية فلسفية تمتد عبر قرون، تربط بين سقوط الأندلس (1492) ونكبة فلسطين (1948) وسقوط بغداد (2003) وغزة (2023-2025) وتونس ما بعد الثورة.\n\nالطارق ليس نبياً ولا ملاكاً، بل تجسيد لسؤال الرشد في كل زمان، داعٍ إلى الرحمة ومذكّر بأن الزمن ليس عدواً بل اختباراً."},
+{id:"w_1777011550787",title:"مرايا وظلال",genre:"رواية",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"عمل يتجاوز التصنيفات التقليدية، يقف على تخوم الرواية الفلسفية والقصيدة النثرية والمسرحة الرمزية.\n\nيمثّل حالة فريدة في المشهد الروائي العربي المعاصر لبنائه السردي المبتكر القائم على تحويل الضمائر اللغوية إلى شخصيات درامية ذات أبعاد وجودية."},
+{id:"w_1777011789322",title:"زقاق القربان",genre:"رواية",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"رواية لاستكشاف آليات اشتغال المجتمع حين يواجه الخوف والقلق والعجز عن الفهم. تتوزع على لوحات سردية متعددة وتتقاطع فيها الأزمنة والأصوات.\n\nيسمح هذا البناء بتناول الحدث الواحد من زوايا مختلفة دون افتراض حقيقة نهائية أو تفسير أحادي."},
+{id:"w_1777011978648",title:"تصاريح القمر الدامي",genre:"شعر",writeDate:"",publishDate:"2025",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"في ليلة السابع من سبتمبر 2025، حين غرق القمر في حمرة الكسوف على شاطئ البحر الساكن، وُلدت هذه الكلمات.\n\n«تصاريح القمر الدامي» رحلة وجدانية بدأت بخسوف وانتهت بضياء. يتقاطع فيها القمر الدامي مع الفجر الكاذب، ويتوازى الخسوف مع الضياء."},
+{id:"w_1777012193903",title:"الملجأ الأخير",genre:"رواية",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"رواية تتقصى أغوار الذاكرة الإنسانية بكل أبعادها. رحلة الإنسان وهو يطارد ذاته في مرايا الماضي المتكسّر محاولاً أن يجد في زوايا الذاكرة خلاصه الأخير.\n\nهل الذاكرة مرآة نعاين فيها وجوهنا الأولى، أم ملاذ نلجأ إليه حين تشتد علينا عواصف الحاضر؟"},
+{id:"w_1777012454655",title:"الحاذق...لستُ بالخبّ",genre:"رواية",writeDate:"",publishDate:"2026",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"منير أمضى عشرين عاماً يصمّم برامج التدريب ويكتب مواثيق القيم مقتنعاً بأن الكلمات الجميلة يمكن أن تتحول إلى واقع معاش.\n\nرواية نقدية للثقافة المؤسسية والمقاومة الخفية للتغيير داخل منظومات السلطة. نعيش في زمن تَعظُم فيه الكلمة وتصغر فيه الحقيقة."},
+{id:"w_1777012611076",title:"صهوة الريح",genre:"رواية",writeDate:"",publishDate:"2025",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"«صهوة الريح» حلقة الوصل بين ثلاث روايات: «خريف الشعلة 1943» و«رقية 1967» و«براني 1867».\n\nمبنية بتقنية الكراسة الموروثة: شاب وشابة يتسلمان في 2022 كراسة كتبها رجل عجوز في دار المسنين، تحتوي على سبع قصص لسبع شخصيات في مارس 1957."},
+{id:"w_1777012740248",title:"بيروس",genre:"رواية",writeDate:"",publishDate:"2026",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"كيف يمكن لكلمات أن تقتل 40,000 إنسان؟ حملة صقلية (415-413 ق.م) — 40,000 رجل أبحروا من أثينا بحلم المجد. أقل من 5,000 عادوا أحياء.\n\nبدأت بخطاب واحد. خطيب أقنع الجمعية الأثينية بأن صقلية «سهلة» و«غنية». كذب. وعد. حلّم. أثار المشاعر. الجمهور صفّق. ثم... الكارثة."},
+{id:"w_1777012855204",title:"جحا...الحكيم الساخر",genre:"رواية",writeDate:"",publishDate:"2026",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"في خريف 1468م في مدينة أندلسية صغيرة، قرر شاب خطاط اسمه معاذ بن إبراهيم أن يفعل شيئاً بسيطاً وخطيراً: أن يضحك.\n\nليس أي ضحك — بل ضحك يكشف، يسأل، يقاوم. «جحا» محاولة لإعادة تخيّل كيف يولد رمز وكيف تتحول النكتة من تسلية إلى سلاح."},
+{id:"w_1777013152997",title:"الألوان المتكسّرة",genre:"رواية",writeDate:"2013",publishDate:"2026",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"رواية في سبعة أطر وأحد عشر فصلاً تسير في أكثر من زمن ومكان في آنٍ واحد. إطار في تونس 2026: أب يعطي ابنته كتاباً. إطار في قرطبة 2026: ابنة تقرأ الكتاب.\n\nالأزمنة لا تتعاقب بل تتراكب — من 1492 إلى 2026. رواية حول الموريسكيين ومحاكم التفتيش في قرطبة."},
+{id:"w_1777013470518",title:"الكَرهبة",genre:"رواية",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"تونس، ستينيات القرن الماضي. المختار، سائق تاكسي من أصل فلاحي، يقود «الكتشة» كل صباح. في يوم واحد تمر به مرآة المجتمع التونسي بطبقاته.\n\n«الكَرهبة» ليست رواية عن السيارات، بل عن تونس العميقة: ماذا يحدث حين يتوقف كل شيء ولا يبقى إلا الناس وجهاً لوجه؟"},
+{id:"w_1777015073697",title:"الحائط...سينقض",genre:"رواية",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"في فناء بيت قديم بحي الملاسين، يقف عدنان كل صباح أمام حائط لم يبنه. حين يطرق رجل من أهل المال بثمن كبير، يبدأ عدنان يكتشف أن للحائط أسراراً تحت الإسمنت.\n\nعن ما يُبنى في الصمت ويُهدَم في الإهمال، وعن الآباء الذين يتركون في الحيطان ما لم يستطيعوا قوله بالكلام."},
+{id:"w_1777015262671",title:"سبات الدببة",genre:"رواية",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"ليست مجرد سرد لرحلة يونس ونور عبر محنة العقم، بل تشريح وجودي لحياتين تصطدمان بأقسى الأسئلة: من نحن حين ننزع عنا توقعات الآخرين؟\n\nمن حديقة طفولة يونس إلى شقة نور الفارغة حيث تحتفظ بتذكرة سفر باسمين — اسمها واسم رجل لم يأتِ بعد."},
+{id:"w_1777015786791",title:"رسوم الأيام...كتاب مفتوح",genre:"بحث توثيقي",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"الكتابة عندي ليست ترفاً ولا زينة، بل هي شهقة الروح الأولى وأختها الأخيرة. هي فعلي الذاتي الذي أمارس فيه حقي في التعبير عن الرأي والموقف والمشاعر.\n\nهذا العمل التوثيقي تقديم للإنتاج الأدبي والفكري بتنوعه: رواية وخواطر وقصيدة وبحوث توثيقية."},
+{id:"w_1777028684396",title:"المرجل — كتاب مفتوح",genre:"شعر",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"المرجل: بوتقة الزمن والتجارب. خلاصة غليان داخلي متمادٍ يشكّل سيرة شعورية شاملة.\n\nتُصهر فيها تجارب العمر المتباينة: ذكريات الشباب واتزان الحاضر، تأملات الذات وانفعالات الواقع. وعاء تنصهر فيه المشاعر لتلد نصوصاً هي مرآة عاكسة للكيان الإنساني."},
+{id:"w_1777030227661",title:"أحداث التجنيس من خلال الصحافة في تونس — 1923 و1933",genre:"دراسة",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"لم تكن حملة التجنيس الفرنسية في تونس حدثاً معزولاً، بل امتداداً لسياسة استعمارية بدأت منذ 1881.\n\nأظهرت النتائج أن كل صحيفة ركّزت فقط على ما يتوافق مع خياراتها السياسية. يسلّط الضوء على دور الصحافة في كشف التحولات الاجتماعية والسياسية التي أحدثتها تلك الحملة."},
+{id:"w_1777030522606",title:"التجنيس في تونس بين 1923 و2023",genre:"دراسة",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"إعادة قراءة نقدية لمسألة التجنيس في تونس انطلاقاً من حملتي 1923 و1933 وصولاً إلى راهن 2023.\n\nالإشكالية: هل ما تعرضت له الهوية التونسية زمن الاستعمار هوية «استعمارية» أم هوية «تحت الاستعمار»؟ تحديث نقدي لرسالة جامعية من 1980 بآليات مفاهيمية جديدة."},
+{id:"w_1777099242002",title:"قصيدة صباح — تصدّعات",genre:"شعر",writeDate:"2026-04-25",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"مَلَلٌ يَنخُرُ السّاعاتِ نَخراً / وتَصَدُّعٌ يَشُقُّ السَّكَناتِ شَقّاً / بينَ الأنا والذّاتِ / حِوارُ خَزَفٍ مُتَشَظٍّ.\n\nقصيدة صباح 25 أفريل 2026 — خطاب بين الأنا والذات، بين الملل والغضب والحنين إلى اللذات الصغيرة."},
+{id:"w_1777099436895",title:"قصيدة — محاريب",genre:"شعر",writeDate:"2026-04-24",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"محراب هي الحياة / محراب هي السماء / محراب هي النفس في تجليات السنا / محاريب / نعشق فيها الروح تناجي الخالق.\n\nقصيدة 24 أبريل 2026 — تأمل روحاني في المحاريب المتعددة: السماء والفناء والحب والحياة."},
+{id:"w_1777185886491",title:"ميثاق 2003 — سديم العبور ولجام الضياء",genre:"خواطر",writeDate:"2026-02-25",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"في عام 2003، انشق الوعي فجأة كانشقاق السماء قبيل مطرها الأول، وانزلقتُ إلى داخل رؤيا كانت تنتظرني منذ الأزل.\n\nرؤيا أسّست ميثاقاً مع العلم والبذل والكتابة. وعن ثمن التصنيف السياسي لمن يحمل عقلية المعرفة في فضاءات السلطة."},
+{id:"w_1777186098897",title:"وطن الحنين",genre:"خواطر",writeDate:"2026-01-04",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"قصيدة فرضت مضمونها جواباً على سؤال صديق: «متى ستشفى من معاناة ذكرى والدتك؟»\n\nلَا مَعْنَى لِلطَّوَافِ حَوْلَ الْكَعْبَةِ دُونَ أُمِّي / وَلَامَسَتْ خَدِّي يَدَاهَا — يَدَاهَا وَحْدَهَا / كَأَنَّهَا حِجَابُ الرَّجَاءِ بَيْنَ أَضْلُعِي وَالسَّمَاءِ."},
+{id:"w_1777185989854",title:"وداعاً جلال",genre:"خواطر",writeDate:"2026-03-10",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"خاطرة قبل منتصف الليل. عين زغوان، 10 مارس 2026.\n\nكتبتُ عنه منذ أشهر وكأن القلم كان يعلم ما لم أكن أريد أن أعلمه. اليوم، جلال ليس هناك. بينما صديق آخر يسحبني بحضوره نحو الحياة حتى وأنا واقف على أرض المقبرة."},
+{id:"w_1777186229318",title:"دائرة الجمال",genre:"خواطر",writeDate:"2026-04-16",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"الخميس 16 أفريل 2026 — مدينة الثقافة، تونس العاصمة. دخلتُ القاعة مع ابنتي وحفيدتي ذات العشر سنوات.\n\nحين يطرب الجمهور داخل القاعة وجمهور آخر يعاني خارجها — أي وظيفة تؤدي الموسيقى حقاً؟ الجمال الذي لا يصل كاملاً إلى الجميع — ناقص."},
+{id:"w_1777188433883",title:"غضب",genre:"شعر",writeDate:"2026-04-13",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"أنا غاضب / على نحوٍ أنا فيه فاعلٌ وعاجز / غاضبٌ لأنني ساكن / غاضبٌ لأنني أصمت.\n\nلكنني أعشق — أعشق الموسيقى ونكهة القهوة في فنجان قديم وزهرة أينعت في فصل الربيع لأنني لا أُخلف موعدي مع الربيع."},
+{id:"w_1777188744964",title:"صوت الدجى وصمت الحقيقة",genre:"شعر",writeDate:"2026-04-23",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"في الليلِ حينَ يجثمُ الدجى سكونْ / وتهجرُ الكلماتُ كلَّ مكانْ / وفي النهارِ تعربدُ الحقيقةُ الحزينةُ / مع الصمتِ العارِي بلا بيانْ.\n\nبينهما فجوةٌ — يبحثُ فيها مَنْ يَرى ولا يُبصرُ ما قد رآهْ."},
+{id:"w_1778136270596",title:"الكمنجة",genre:"رواية",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",comments:[],summary:"في سوق سيدي عبد السلام بباب سعدون، رأى كمال كمنجة. لم يشترِها. قال «سأعود». ومضى.\n\nرجل في الستين يكتشف أن حياته كانت سلسلة من «سأعود» قالها لكل من يستحق. رواية عن التأجيل والجمال والفقد والفرح الناقص."},
+{id:"w_1778435502835",title:"جذع بلا ظل",genre:"قصة قصيرة",writeDate:"",publishDate:"",pdfLink:"",cover1:"",cover2:"",
+comments:[{name:"نقد الذكاء الاصطناعي",text:"تتميّز القصة بلغة سردية مكثفة وباردة ظاهرياً لكنها مشحونة بتوتر نفسي عميق. أكثر ما يلفت هو الاقتصاد في الانفعال؛ فالشخصيات تتآكل بصمت، ما يمنح القصة طابعاً وجودياً قريباً من أدب العزلة.",date:"10/5/2026"}],
+summary:"تروي صعود هارون داخل مؤسسة إدارية ثم انتقاله إلى السياسة عبر آليات النفوذ الناعم والتلاعب بالعلاقات.\n\nفي الجزء الأخير يتحول هاجسه إلى الخوف من الكتابة والذاكرة حين يعلم بوجود كاتب يؤرخ للمرحلة. السلطة تخشى السرد أكثر مما تخشى الخصوم."}
+];
+
+const KW0=[
+  {word:"الذاكرة",ids:["w_1777009031948","w_1777009147735","w_1777011550787","w_1777012193903","w_1778136270596","w_1777186098897","w_1777185886491"]},
+  {word:"التاريخ",ids:["w_1777009031948","w_1777010572964","w_1777012740248","w_1777012855204","w_1777011284610","w_1777013152997","w_1777009799941","w_1777030227661","w_1777030522606"]},
+  {word:"الهوية",ids:["w_1777009297981","w_1777011550787","w_1777013152997","w_1777010572964","w_1777030522606","w_1777030227661"]},
+  {word:"الطفولة",ids:["w_1777009147735","w_1777009031948","w_1777015262671"]},
+  {word:"الحرب",ids:["w_1777009031948","w_1777012740248","w_1777011284610"]},
+  {word:"الأندلس",ids:["w_1777012855204","w_1777013152997","w_1777011284610","w_1777009147735"]},
+  {word:"المقاومة",ids:["w_1777009031948","w_1777012193903","w_1777011284610","w_1777030227661"]},
+  {word:"الغريب",ids:["w_1777009031948","w_1777010572964","w_1777009297981","w_1777011284610","w_1777013470518"]},
+  {word:"الكتابة",ids:["w_1777009965690","w_1778435502835","w_1778136270596","w_1777015786791","w_1777185886491"]},
+  {word:"المؤسسة",ids:["w_1777012454655","w_1778435502835"]},
+  {word:"الصمت",ids:["w_1777015262671","w_1777188744964","w_1778136270596","w_1778435502835"]},
+  {word:"المدينة",ids:["w_1777009147735","w_1778136270596","w_1777186229318","w_1777013470518"]},
+  {word:"الروح",ids:["w_1777010193424","w_1777186098897","w_1777188433883","w_1777099436895"]},
+  {word:"الخطاب",ids:["w_1777011284610","w_1777012454655","w_1777012740248"]},
+  {word:"القدر",ids:["w_1777012193903","w_1777011550787","w_1777009297981","w_1777015262671"]},
+  {word:"رمضان",ids:["w_1777010193424"]},
+  {word:"حبّ",ids:["w_1777186098897","w_1777009147735","w_1778136270596","w_1777188433883"]},
+  {word:"سلطة",ids:["w_1778435502835","w_1777012454655","w_1777011284610","w_1777011550787"]},
+  {word:"أمّ",ids:["w_1777186098897","w_1777009147735"]},
+  {word:"أب",ids:["w_1777010572964","w_1777009799941","w_1777015073697"]},
+  {word:"زهرة",ids:["w_1777009297981","w_1777188433883","w_1777186229318"]},
+  {word:"سمفونية",ids:["w_1778136270596","w_1777186229318","w_1777028684396"]}
+];
+
+/* utils */
+const uid=()=>"w_"+Date.now()+Math.floor(Math.random()*9999);
+const toB64=f=>new Promise(r=>{const fr=new FileReader();fr.onload=e=>r(e.target.result);fr.readAsDataURL(f);});
+const dlJson=(o,n)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(o,null,2)],{type:"application/json"}));a.download=n;a.click();};
+const LS="ridha_v3";
+const lsLoad=()=>{try{const d=localStorage.getItem(LS);return d?JSON.parse(d):null;}catch{return null;}};
+const lsSave=d=>{try{localStorage.setItem(LS,JSON.stringify(d));}catch{}};
+
+/* ── Modal ── */
+function Modal({children,onClose,wide}){
+  useEffect(()=>{const h=e=>{if(e.key==="Escape")onClose();};window.addEventListener("keydown",h);return()=>window.removeEventListener("keydown",h);},[]);
+  return(
+    <div className="ov" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="md fadein" style={{maxWidth:wide?780:560,margin:"20px auto"}}>
+        <button className="btn br" style={{float:"left",fontSize:12,padding:"4px 12px",marginBottom:14}} onClick={onClose}>✕ إغلاق</button>
+        <div style={{clear:"both"}}>{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Cover ── */
+function Cover({src,label}){
+  if(src)return <img src={src} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>;
+  return <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100%",flexDirection:"column",gap:4,color:T.w,opacity:.28,fontSize:11,fontFamily:"Cairo,sans-serif"}}><span style={{fontSize:26}}>📖</span><span>{label}</span></div>;
+}
+
+/* ── Card ── */
+function Card({w,matched,dimmed,onView,onEdit,onDel}){
+  const [exp,setExp]=useState(false);
+  return(
+    <div className={"card"+(matched?" matched":"")+(dimmed?" dimmed":"")} style={{background:T.p,borderRadius:16,border:`1.5px solid ${T.pd}`,boxShadow:`0 4px 16px rgba(107,30,51,.08)`,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",height:145,background:T.pdd,cursor:"pointer"}} onClick={onView}>
+        <div style={{borderLeft:`1.5px solid ${T.p}`}}><Cover src={w.cover1} label="أمامي"/></div>
+        <Cover src={w.cover2} label="خلفي"/>
+      </div>
+      <div style={{padding:"13px 15px",flex:1,display:"flex",flexDirection:"column",gap:7}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,flexWrap:"wrap"}}>
+          <span className="tag">{GI[w.genre]||"✦"} {w.genre}</span>
+          {w.publishDate&&<span style={{fontSize:11,color:T.txl,fontFamily:"Cairo,sans-serif"}}>📅 {w.publishDate}</span>}
+        </div>
+        <h3 onClick={onView} style={{fontFamily:"'Scheherazade New',serif",fontSize:21,color:T.w,margin:0,lineHeight:1.3,cursor:"pointer"}}>{w.title}</h3>
+        {w.writeDate&&<p style={{fontSize:11,color:T.txll,fontFamily:"Cairo,sans-serif",margin:0}}>✍ {w.writeDate}</p>}
+        <p className={exp?"":"clamp3"} style={{fontSize:14,fontFamily:"'Amiri',serif",lineHeight:1.85,color:T.tx,margin:0,whiteSpace:"pre-wrap"}}>{w.summary}</p>
+        {w.summary&&w.summary.length>200&&(
+          <button onClick={()=>setExp(x=>!x)} style={{alignSelf:"flex-start",background:"transparent",border:`1px solid ${T.g}`,color:T.gd,borderRadius:999,fontSize:11,padding:"2px 12px",cursor:"pointer",fontFamily:"Cairo,sans-serif"}}>
+            {exp?"▲ أقل":"▼ تابع"}
+          </button>
+        )}
+      </div>
+      <div style={{borderTop:`1.5px solid ${T.pd}`,padding:"10px 14px",display:"flex",gap:7,flexWrap:"wrap",alignItems:"center"}}>
+        <button className="btn bw" style={{fontSize:12,padding:"4px 12px"}} onClick={onView}>📖 قراءة</button>
+        {w.pdfLink&&<a href={w.pdfLink} target="_blank" rel="noopener noreferrer" className="btn bg" style={{fontSize:12,padding:"4px 12px",textDecoration:"none"}}>⬇ PDF</a>}
+        <button className="btn" style={{fontSize:12,padding:"4px 10px",background:T.pd,color:T.w,border:"none",borderRadius:7}} onClick={onEdit}>✏</button>
+        <button className="btn br" style={{fontSize:12,padding:"4px 9px"}} onClick={()=>window.confirm("حذف هذا العمل نهائياً؟")&&onDel(w.id)}>🗑</button>
+        {w.comments&&w.comments.length>0&&<span style={{marginRight:"auto",fontSize:11,color:T.wl,fontFamily:"Cairo,sans-serif"}}>💬 {w.comments.length}</span>}
+      </div>
+    </div>
+  );
+}
+
+/* ── Detail Modal ── */
+function DetailModal({w,onClose,onUpdate}){
+  const [name,setName]=useState("");
+  const [txt,setTxt]=useState("");
+  const submit=()=>{
+    if(!name.trim()||!txt.trim())return;
+    onUpdate({...w,comments:[...(w.comments||[]),{name:name.trim(),text:txt.trim(),date:new Date().toLocaleDateString("ar-TN")}]});
+    setName("");setTxt("");
+  };
+  return(
+    <Modal onClose={onClose} wide={true}>
+      <h2 style={{fontFamily:"'Scheherazade New',serif",color:T.w,fontSize:28,margin:"0 0 10px",lineHeight:1.3}}>{w.title}</h2>
+      <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap",marginBottom:12}}>
+        <span className="tag">{GI[w.genre]||"✦"} {w.genre}</span>
+        {w.writeDate&&<span style={{fontFamily:"Cairo,sans-serif",fontSize:13,color:T.wl}}>✍ {w.writeDate}</span>}
+        {w.publishDate&&<span style={{fontFamily:"Cairo,sans-serif",fontSize:13,color:T.wl}}>📅 {w.publishDate}</span>}
+      </div>
+      {(w.cover1||w.cover2)&&(
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:16,height:175,borderRadius:12,overflow:"hidden",background:T.pdd}}>
+          <Cover src={w.cover1} label="الغلاف الأمامي"/><Cover src={w.cover2} label="الغلاف الخلفي"/>
+        </div>
+      )}
+      <div style={{background:T.pd,borderRadius:12,padding:"18px 20px",marginBottom:14}}>
+        <p style={{fontFamily:"'Amiri',serif",fontSize:16.5,lineHeight:2,color:T.tx,whiteSpace:"pre-wrap",margin:0}}>{w.summary}</p>
+      </div>
+      {w.pdfLink&&<a href={w.pdfLink} target="_blank" rel="noopener noreferrer" className="btn bg" style={{display:"inline-block",marginBottom:14,textDecoration:"none"}}>⬇ تحميل PDF</a>}
+      <hr className="sep"/>
+      <h3 style={{fontFamily:"Cairo,sans-serif",color:T.w,margin:"0 0 12px",fontSize:17}}>💬 تعليقات القراء ({(w.comments||[]).length})</h3>
+      <div style={{maxHeight:220,overflowY:"auto",display:"flex",flexDirection:"column",gap:10,marginBottom:16}}>
+        {(w.comments||[]).map((c,i)=>(
+          <div key={i} style={{background:T.pd,borderRadius:10,padding:"11px 14px"}}>
+            <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:5}}>
+              <strong style={{fontFamily:"Cairo,sans-serif",color:T.w,fontSize:13}}>{c.name}</strong>
+              <span style={{fontSize:11,color:T.txl}}>{c.date}</span>
+            </div>
+            <p style={{fontFamily:"'Amiri',serif",fontSize:15,lineHeight:1.8,color:T.tx,margin:0}}>{c.text}</p>
+          </div>
+        ))}
+        {!(w.comments||[]).length&&<p style={{textAlign:"center",padding:"10px 0",fontFamily:"Cairo,sans-serif",fontSize:13,color:T.txl}}>لا توجد تعليقات — كن أول من يعلّق!</p>}
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:10}}>
+        <input value={name} onChange={e=>setName(e.target.value)} placeholder="اسمك"/>
+        <textarea value={txt} onChange={e=>setTxt(e.target.value)} placeholder="أضف تعليقك هنا..." rows={3}/>
+        <button className="btn bw" onClick={submit}>✉ إرسال التعليق</button>
+      </div>
+    </Modal>
+  );
+}
+
+/* ── Edit Work Modal ── */
+function EditModal({w,onSave,onClose}){
+  const [f,setF]=useState({...w});
+  const r1=useRef(),r2=useRef();
+  const up=(k,v)=>setF(x=>({...x,[k]:v}));
+  const img=async(e,k)=>{const file=e.target.files[0];if(file)up(k,await toB64(file));};
+  return(
+    <Modal onClose={onClose} wide={true}>
+      <h2 style={{fontFamily:"Cairo,sans-serif",color:T.w,margin:"0 0 20px",fontSize:20}}>{f.id?"✏ تعديل العمل":"➕ إضافة عمل جديد"}</h2>
+      <div style={{display:"flex",flexDirection:"column",gap:14}}>
+        <div><label>العنوان *</label><input value={f.title} onChange={e=>up("title",e.target.value)}/></div>
+        <div><label>الجنس الأدبي *</label>
+          <select value={f.genre} onChange={e=>up("genre",e.target.value)}>
+            {["رواية","شعر","خواطر","قصة قصيرة","بحث توثيقي","دراسة","أخرى"].map(g=><option key={g}>{g}</option>)}
+          </select>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+          <div><label>تاريخ الكتابة</label><input value={f.writeDate} onChange={e=>up("writeDate",e.target.value)} placeholder="مثال: 2024"/></div>
+          <div><label>تاريخ النشر</label><input value={f.publishDate} onChange={e=>up("publishDate",e.target.value)} placeholder="مثال: 2025"/></div>
+        </div>
+        <div><label>الملخص</label><textarea value={f.summary} onChange={e=>up("summary",e.target.value)} rows={5}/></div>
+        <div><label>رابط PDF</label><input value={f.pdfLink} onChange={e=>up("pdfLink",e.target.value)} placeholder="https://..."/></div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+          {["cover1","cover2"].map((k,i)=>(
+            <div key={k}>
+              <label>{i===0?"الغلاف الأمامي":"الغلاف الخلفي"}</label>
+              <div style={{height:105,background:T.pdd,borderRadius:10,overflow:"hidden",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",border:`2px dashed rgba(201,168,76,.4)`}} onClick={()=>(i===0?r1:r2).current.click()}>
+                {f[k]?<img src={f[k]} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>:<span style={{fontSize:12,color:T.wl,fontFamily:"Cairo,sans-serif"}}>📷 رفع صورة</span>}
+              </div>
+              <input ref={i===0?r1:r2} type="file" accept="image/*" style={{display:"none"}} onChange={e=>img(e,k)}/>
+              {f[k]&&<button onClick={()=>up(k,"")} style={{marginTop:4,background:"transparent",border:"none",color:T.wl,fontSize:11,cursor:"pointer",fontFamily:"Cairo,sans-serif"}}>✕ إزالة</button>}
+            </div>
+          ))}
+        </div>
+        <div style={{display:"flex",gap:10,marginTop:4}}>
+          <button className="btn bw" onClick={()=>{if(!f.title.trim()){alert("يرجى إدخال العنوان");return;}onSave(f);}}>💾 حفظ</button>
+          <button className="btn" style={{background:T.pd,color:T.w,border:"none"}} onClick={onClose}>إلغاء</button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/* ── Author Modal ── */
+function AuthorModal({author,onSave,onClose}){
+  const [f,setF]=useState({...author});
+  const pr=useRef();
+  const up=(k,v)=>setF(x=>({...x,[k]:v}));
+  return(
+    <Modal onClose={onClose} wide={false}>
+      <h2 style={{fontFamily:"Cairo,sans-serif",color:T.w,margin:"0 0 20px",fontSize:20}}>✏ تعديل البيانات الشخصية</h2>
+      <div style={{display:"flex",flexDirection:"column",gap:14}}>
+        <div>
+          <label>الصورة الشخصية</label>
+          <div style={{width:110,height:110,borderRadius:"50%",background:T.pdd,overflow:"hidden",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",border:`4px solid ${T.g}`}} onClick={()=>pr.current.click()}>
+            {f.photo?<img src={f.photo} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>:<span style={{fontSize:12,color:T.wl,fontFamily:"Cairo,sans-serif",textAlign:"center",lineHeight:1.5}}>📷<br/>رفع صورة</span>}
+          </div>
+          <input ref={pr} type="file" accept="image/*" style={{display:"none"}} onChange={async e=>{const fi=e.target.files[0];if(fi)up("photo",await toB64(fi));}}/>
+          {f.photo&&<button onClick={()=>up("photo","")} style={{marginTop:5,background:"transparent",border:"none",color:T.wl,fontSize:11,cursor:"pointer",fontFamily:"Cairo,sans-serif"}}>✕ إزالة</button>}
+        </div>
+        <div><label>السيرة الذاتية</label><textarea value={f.bio} onChange={e=>up("bio",e.target.value)} rows={5}/></div>
+        <div><label>البريد الإلكتروني</label><input value={f.email} onChange={e=>up("email",e.target.value)}/></div>
+        <div><label>الهاتف / وسائل التواصل</label><input value={f.phone} onChange={e=>up("phone",e.target.value)}/></div>
+        <div style={{display:"flex",gap:10}}>
+          <button className="btn bw" onClick={()=>onSave(f)}>💾 حفظ</button>
+          <button className="btn" style={{background:T.pd,color:T.w,border:"none"}} onClick={onClose}>إلغاء</button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/* ── Keyword Modal ── */
+function KwModal({kw,works,onSave,onClose}){
+  const [word,setWord]=useState(kw.word);
+  const [ids,setIds]=useState(new Set(kw.ids));
+  const toggle=id=>setIds(s=>{const n=new Set(s);n.has(id)?n.delete(id):n.add(id);return n;});
+  return(
+    <Modal onClose={onClose} wide={false}>
+      <h2 style={{fontFamily:"Cairo,sans-serif",color:T.w,margin:"0 0 18px",fontSize:20}}>✏ تعديل الكلمة الدلالية</h2>
+      <div style={{display:"flex",flexDirection:"column",gap:14}}>
+        <div><label>الكلمة</label><input value={word} onChange={e=>setWord(e.target.value)}/></div>
+        <div>
+          <label>الأعمال المرتبطة ({ids.size})</label>
+          <div style={{maxHeight:270,overflowY:"auto",background:T.pd,borderRadius:10,padding:12,display:"flex",flexDirection:"column",gap:7}}>
+            {works.map(w=>(
+              <label key={w.id} style={{display:"flex",gap:10,alignItems:"center",cursor:"pointer",color:T.tx,fontWeight:400,margin:0}}>
+                <input type="checkbox" checked={ids.has(w.id)} onChange={()=>toggle(w.id)} style={{width:"auto",accentColor:T.w}}/>
+                <span style={{fontFamily:"'Scheherazade New',serif",fontSize:16}}>{w.title}</span>
+                <span style={{fontSize:11,color:T.txl,marginRight:"auto"}}>{w.genre}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+        <div style={{display:"flex",gap:10}}>
+          <button className="btn bw" onClick={()=>onSave({...kw,word:word.trim(),ids:[...ids]})}>💾 حفظ</button>
+          <button className="btn" style={{background:T.pd,color:T.w,border:"none"}} onClick={onClose}>إلغاء</button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/* ══════════ MAIN APP ══════════ */
+function App(){
+  const saved=lsLoad();
+  const [author,setAuthor]=useState(saved?.author||A0);
+  const [works,setWorks]=useState(saved?.works||W0);
+  const [kws,setKws]=useState(saved?.keywords||KW0);
+  const [genre,setGenre]=useState("الكل");
+  const [search,setSearch]=useState("");
+  const [sortBy,setSortBy]=useState("default");
+  const [activeKw,setActiveKw]=useState(null);
+  const [detail,setDetail]=useState(null);
+  const [editW,setEditW]=useState(null);
+  const [showAuth,setShowAuth]=useState(false);
+  const [editKw,setEditKw]=useState(null);
+  const [toast,setToast]=useState("");
+  const importRef=useRef();
+
+  useEffect(()=>lsSave({author,works,keywords:kws}),[author,works,kws]);
+
+  const notify=useCallback(msg=>{setToast(msg);setTimeout(()=>setToast(""),3000);},[]);
+
+  const matchedIds=activeKw?(kws.find(k=>k.word===activeKw)?.ids||[]):null;
+  const matchedCount=matchedIds?works.filter(w=>matchedIds.includes(w.id)).length:0;
+
+  let filtered=[...works].filter(w=>{
+    if(genre!=="الكل"&&w.genre!==genre)return false;
+    if(search.trim()){const q=search.trim();if(!w.title.includes(q)&&!w.summary.includes(q)&&!w.genre.includes(q))return false;}
+    return true;
+  });
+  if(sortBy==="title")filtered.sort((a,b)=>a.title.localeCompare(b.title,"ar"));
+  else if(sortBy==="year")filtered.sort((a,b)=>(b.publishDate||"0").localeCompare(a.publishDate||"0"));
+  else if(sortBy==="genre")filtered.sort((a,b)=>a.genre.localeCompare(b.genre,"ar"));
+
+  const stats=GENRES.slice(1).map(g=>({g,n:works.filter(w=>w.genre===g).length})).filter(x=>x.n>0);
+  const kwNums=kws.map(k=>k.ids.length);
+  const maxC=Math.max(...kwNums,1),minC=Math.min(...kwNums,1);
+  const kwSize=n=>14+((n-minC)/(maxC-minC||1))*26;
+
+  const saveWork=w=>{
+    if(!w.id)w={...w,id:uid(),comments:[]};
+    setWorks(x=>{const i=x.findIndex(e=>e.id===w.id);return i>=0?x.map((e,j)=>j===i?w:e):[...x,w];});
+    setDetail(d=>d&&d.id===w.id?w:d);
+    setEditW(null);
+    notify("✅ تم حفظ العمل بنجاح");
+  };
+  const delWork=id=>{setWorks(x=>x.filter(e=>e.id!==id));if(detail&&detail.id===id)setDetail(null);notify("🗑 تم حذف العمل");};
+  const handleExport=()=>{dlJson({version:"3.0",author,works,keywords:kws,exportDate:new Date().toISOString()},"مؤلفات_رضا_الكزدغلي.json");notify("⬇ تم تصدير البيانات");};
+  const handleImport=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const r=new FileReader();
+    r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.author)setAuthor(d.author);if(d.works)setWorks(d.works);if(d.keywords)setKws(d.keywords);notify("✅ تم الاستيراد — "+(d.works?d.works.length:0)+" عمل");}catch{notify("⚠ خطأ في قراءة الملف");}};
+    r.readAsText(file);e.target.value="";
+  };
+  const addKw=()=>{const w=prompt("الكلمة الدلالية الجديدة:");if(!w||!w.trim())return;if(kws.find(k=>k.word===w.trim())){notify("⚠ الكلمة موجودة مسبقاً");return;}setKws(x=>[...x,{word:w.trim(),ids:[]}]);notify("✅ تمت إضافة الكلمة");};
+  const delKw=word=>{if(!window.confirm("حذف الكلمة «"+word+"»؟"))return;setKws(x=>x.filter(k=>k.word!==word));if(activeKw===word)setActiveKw(null);notify("🗑 تم حذف الكلمة");};
+
+  return(
+    <div dir="rtl" style={{minHeight:"100vh",background:T.p,color:T.tx,fontFamily:"Cairo,sans-serif"}}>
+
+      {toast&&<div className="toast-anim" style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:T.wd,color:T.gl,padding:"11px 28px",borderRadius:999,fontFamily:"Cairo,sans-serif",fontSize:14,zIndex:99999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",border:`1.5px solid ${T.g}`,whiteSpace:"nowrap"}}>{toast}</div>}
+
+      {/* HEADER */}
+      <header style={{background:`linear-gradient(150deg,${T.wd} 0%,${T.w} 100%)`}}>
+        <div style={{maxWidth:1240,margin:"0 auto",padding:"0 20px"}}>
+          <div style={{textAlign:"center",padding:"16px 0 10px",borderBottom:`1px solid rgba(201,168,76,.2)`}}>
+            <p style={{fontFamily:"'Amiri',serif",fontSize:15,color:"rgba(229,196,107,.8)",margin:0,letterSpacing:2}}>✦ المؤلفات الأدبية والفكرية ✦</p>
+            <p style={{fontFamily:"'Amiri',serif",fontSize:13,color:"rgba(229,196,107,.5)",margin:"3px 0 0",letterSpacing:1}}>رواية · شعر · خواطر · بحوث ودراسات</p>
+          </div>
+          <div style={{textAlign:"center",padding:"24px 0 0"}}>
+            <div onClick={()=>setShowAuth(true)} title="انقر لتعديل البيانات" style={{width:122,height:122,borderRadius:"50%",border:`4px solid ${T.g}`,overflow:"hidden",margin:"0 auto 15px",background:T.w,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 0 0 6px rgba(107,30,51,.2),0 10px 30px rgba(0,0,0,.4)"}}>
+              {author.photo?<img src={author.photo} style={{width:"100%",height:"100%",objectFit:"cover"}} alt="رضا الكزدغلي"/>:<span style={{fontFamily:"'Scheherazade New',serif",fontSize:52,color:T.gl,lineHeight:1}}>ر</span>}
+            </div>
+            <h1 style={{fontFamily:"'Scheherazade New',serif",fontSize:40,color:T.gl,margin:"0 0 2px",letterSpacing:4,textShadow:"0 2px 14px rgba(0,0,0,.35)"}}>رضا الكزدغلي</h1>
+          </div>
+          <div style={{background:"rgba(74,21,34,.55)",padding:"18px 28px",display:"flex",flexWrap:"wrap",gap:22,alignItems:"flex-start"}}>
+            <p style={{flex:1,minWidth:260,fontFamily:"'Amiri',serif",fontSize:15,lineHeight:2,margin:0,color:"rgba(229,196,107,.85)",whiteSpace:"pre-line"}}>{author.bio}</p>
+            <div style={{display:"flex",flexDirection:"column",gap:7,minWidth:200}}>
+              {author.email&&<a href={"mailto:"+author.email} style={{fontSize:13,color:T.gl,fontFamily:"Cairo,sans-serif",opacity:.85,textDecoration:"none"}}>📧 {author.email}</a>}
+              {author.phone&&<span style={{fontSize:13,color:T.gl,fontFamily:"Cairo,sans-serif",opacity:.85}}>📞 {author.phone}</span>}
+            </div>
+          </div>
+          <div style={{background:T.w,padding:"12px 24px",display:"flex",gap:9,flexWrap:"wrap",alignItems:"center"}}>
+            <button className="btn bg" onClick={()=>setShowAuth(true)}>✏ تعديل البيانات</button>
+            <button className="btn bg" onClick={handleExport}>⬇ تصدير JSON</button>
+            <button className="btn bg" onClick={()=>importRef.current.click()}>⬆ استيراد JSON</button>
+            <input ref={importRef} type="file" accept=".json" style={{display:"none"}} onChange={handleImport}/>
+            <button className="btn br" style={{fontSize:12,marginRight:"auto"}} onClick={()=>{if(window.confirm("⚠ إعادة الضبط إلى البيانات الأصلية؟")){setAuthor(A0);setWorks(W0);setKws(KW0);notify("✅ تم إعادة الضبط");}}}>↺ إعادة الضبط</button>
+            <span style={{fontSize:11,color:T.txl}}>💾 البيانات محفوظة تلقائياً</span>
+          </div>
+        </div>
+      </header>
+
+      {/* MAIN */}
+      <main style={{maxWidth:1240,margin:"0 auto",padding:"28px 20px 70px"}}>
+
+        {/* Semantic Cloud */}
+        <section style={{background:T.pd,borderRadius:18,padding:"24px 28px",marginBottom:26,border:`1.5px solid rgba(201,168,76,.25)`,boxShadow:"inset 0 2px 10px rgba(107,30,51,.07)"}}>
+          <h3 style={{fontFamily:"'Scheherazade New',serif",color:T.w,fontSize:26,margin:"0 0 4px",textAlign:"center"}}>ابحث عن معنى</h3>
+          <p style={{fontFamily:"'Amiri',serif",fontSize:13,color:T.txl,textAlign:"center",margin:"0 0 16px"}}>انقر على كلمة للبحث · انقر مرتين لتعديل ارتباطاتها</p>
+          {activeKw&&(
+            <div style={{background:T.w,borderRadius:12,padding:"10px 18px",marginBottom:14,display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,flexWrap:"wrap"}}>
+              <span style={{fontFamily:"Cairo,sans-serif",fontSize:14,color:T.gl}}>🔍 البحث عن: <strong style={{fontFamily:"'Scheherazade New',serif",fontSize:20,color:T.g}}> {activeKw} </strong> — <span>{matchedCount} {matchedCount===1?"عمل":"أعمال"}</span></span>
+              <div style={{display:"flex",gap:8}}>
+                <button className="btn bg" style={{fontSize:12,padding:"4px 14px"}} onClick={()=>setActiveKw(null)}>✕ إلغاء</button>
+                <button className="btn" style={{fontSize:12,padding:"4px 14px",background:T.pd,color:T.w,border:"none"}} onClick={()=>setEditKw(kws.find(k=>k.word===activeKw))}>✏ تعديل</button>
+                <button className="btn br" style={{fontSize:12,padding:"4px 12px"}} onClick={()=>delKw(activeKw)}>🗑</button>
+              </div>
+            </div>
+          )}
+          <div style={{display:"flex",flexWrap:"wrap",gap:"4px 18px",justifyContent:"center",lineHeight:2.5,padding:"4px 0"}}>
+            {kws.map(k=>(
+              <span key={k.word} className={"kw"+(activeKw===k.word?" act":"")}
+                style={{fontSize:kwSize(k.ids.length),color:activeKw===k.word?T.g:T.w,fontWeight:k.ids.length>4?700:400,opacity:activeKw&&activeKw!==k.word?.55:1}}
+                onClick={()=>setActiveKw(p=>p===k.word?null:k.word)}
+                onDoubleClick={()=>setEditKw(k)}
+                title={k.word+" · "+k.ids.length+" أعمال"}
+              >{k.word}</span>
+            ))}
+          </div>
+          <div style={{textAlign:"center",marginTop:16}}>
+            <button className="btn btr" style={{fontSize:13,padding:"6px 22px"}} onClick={addKw}>+ كلمة دلالية جديدة</button>
+          </div>
+        </section>
+
+        {/* Search + Sort */}
+        <div style={{display:"flex",gap:10,marginBottom:18,flexWrap:"wrap"}}>
+          <div style={{flex:1,minWidth:220,position:"relative"}}>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔎 ابحث بالعنوان أو النص..." style={{fontSize:15,borderRadius:12,border:`2px solid rgba(201,168,76,.35)`,background:T.pd}}/>
+            {search&&<button onClick={()=>setSearch("")} style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",fontSize:17,cursor:"pointer",color:T.wl}}>✕</button>}
+          </div>
+          <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{width:"auto",minWidth:160,borderRadius:12,border:`2px solid rgba(201,168,76,.35)`,background:T.pd,fontSize:13}}>
+            <option value="default">الترتيب: حسب الإدخال</option>
+            <option value="title">ترتيب أبجدي</option>
+            <option value="year">الأحدث نشراً</option>
+            <option value="genre">حسب الجنس الأدبي</option>
+          </select>
+        </div>
+
+        {/* Filters */}
+        <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:22}}>
+          {GENRES.map(g=>(
+            <button key={g} className={"pill"+(genre===g?" on":"")} onClick={()=>setGenre(g)}>
+              {g!=="الكل"&&GI[g]?GI[g]+" ":""}{g}
+            </button>
+          ))}
+        </div>
+
+        {/* Stats */}
+        <div style={{display:"flex",flexWrap:"wrap",gap:10,marginBottom:28}}>
+          <div style={{background:T.w,borderRadius:14,padding:"15px 24px",textAlign:"center",minWidth:130,boxShadow:`0 5px 18px rgba(107,30,51,.16)`}}>
+            <div className="stat-n" style={{color:T.gl}}>{works.length}</div>
+            <div style={{fontSize:12,color:"rgba(229,196,107,.7)",fontFamily:"Cairo,sans-serif",marginTop:2}}>إجمالي الأعمال</div>
+          </div>
+          {stats.map(s=>(
+            <div key={s.g} style={{background:T.pd,border:`1.5px solid rgba(201,168,76,.4)`,borderRadius:14,padding:"15px 18px",textAlign:"center",minWidth:95}}>
+              <div className="stat-n" style={{color:T.w}}>{s.n}</div>
+              <div style={{fontSize:11,color:T.wl,fontFamily:"Cairo,sans-serif",marginTop:2}}>{GI[s.g]||""} {s.g}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Grid */}
+        {filtered.length===0&&(
+          <div style={{textAlign:"center",padding:"60px 20px"}}>
+            <div style={{fontSize:50,marginBottom:12}}>🔍</div>
+            <p style={{fontFamily:"'Amiri',serif",fontSize:18,color:T.txl}}>لا توجد أعمال تطابق الفلتر الحالي</p>
+          </div>
+        )}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(305px,1fr))",gap:22}}>
+          {filtered.map(w=>{
+            const mat=matchedIds!==null&&matchedIds.includes(w.id);
+            const dim=matchedIds!==null&&!matchedIds.includes(w.id);
+            return <Card key={w.id} w={w} matched={mat} dimmed={dim} onView={()=>setDetail(w)} onEdit={()=>setEditW(w)} onDel={delWork}/>;
+          })}
+          {!activeKw&&(
+            <div className="add-c" onClick={()=>setEditW({id:"",title:"",genre:"رواية",writeDate:"",publishDate:"",summary:"",pdfLink:"",cover1:"",cover2:"",comments:[]})}>
+              <span style={{fontSize:46,lineHeight:1}}>+</span>
+              <span style={{fontSize:15,fontWeight:700}}>إضافة عمل جديد</span>
+              <span style={{fontSize:12,opacity:.65}}>رواية أو شعر أو خواطر...</span>
+            </div>
+          )}
+        </div>
+      </main>
+
+      {/* FOOTER */}
+      <footer style={{background:T.w,padding:"22px 20px",textAlign:"center",borderTop:`3px solid rgba(201,168,76,.4)`}}>
+        <p style={{fontFamily:"'Scheherazade New',serif",fontSize:20,color:T.gl,margin:"0 0 5px"}}>المجموعة الشخصية من المؤلفات — رضا الكزدغلي</p>
+        <p style={{fontFamily:"Cairo,sans-serif",fontSize:12,color:"rgba(229,196,107,.6)",margin:0}}>جميع الحقوق محفوظة · {works.length} عملاً موثّقاً</p>
+      </footer>
+
+      {/* MODALS */}
+      {detail&&<DetailModal w={detail} onClose={()=>setDetail(null)} onUpdate={w=>{saveWork(w);setDetail(w);}}/>}
+      {editW&&<EditModal w={editW} onSave={saveWork} onClose={()=>setEditW(null)}/>}
+      {showAuth&&<AuthorModal author={author} onSave={a=>{setAuthor(a);setShowAuth(false);notify("✅ تم حفظ البيانات الشخصية");}} onClose={()=>setShowAuth(false)}/>}
+      {editKw&&<KwModal kw={editKw} works={works} onSave={kw=>{setKws(x=>x.map(k=>k.word===editKw.word?kw:k));setEditKw(null);notify("✅ تم تحديث الكلمة الدلالية");}} onClose={()=>setEditKw(null)}/>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
